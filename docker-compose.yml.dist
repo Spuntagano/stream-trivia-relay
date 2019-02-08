@@ -1,6 +1,6 @@
 version: '3.1'
 services:
-  stream-requests-relay:
+  stream-trivia-relay:
     build: .
     ports:
       - 3001:3001
@@ -8,34 +8,26 @@ services:
       - 3003:3003
       - 3004:3004
     volumes:
-      - ./cert:/www/stream-requests-relay/cert
+      - ./cert:/www/stream-trivia-relay/cert
     environment:
       PORT: 3001
       SSL_PORT: 3002
       WS_PORT: 3003
       WSS_PORT: 3004
       ORIGIN: https://localhost.rig.twitch.tv:8080
-      WS_ORIGIN: http://localhost:3005
+      WS_ORIGIN: http://localhost:3004
       SECRET_KEY:
       TWITCH_API_BASE_URL: https://api.twitch.tv
       NODE_ENV: production
-      VERSION: 0.0.3
-      MYSQL_HOST: mysql
-      MYSQL_USER: StreamRequests
-      MYSQL_PASSWORD:
-      MYSQL_DATABASE_NAME: StreamRequestsStaging
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
     restart: always
     depends_on:
-      - mysql
-  mysql:
-    image: mysql:5.7
-    environment:
-      MYSQL_DATABASE: StreamRequestsStaging
-      MYSQL_USER: StreamRequests
-      MYSQL_PASSWORD:
-      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+      - redis
+  redis:
+    image: redis:5.0
     restart: always
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      test: ["CMD", "redis-cli" ,"ping", "-h", "localhost"]
       timeout: 20s
       retries: 10

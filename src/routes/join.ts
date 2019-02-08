@@ -12,35 +12,39 @@ var router = express.Router();
 router.post('/', async (req, res, next) => {
     let token: any = {}, state;
 
-    if (req.headers.authorization) {
+    try {
+        token = await auth(req.headers.authorization);
+    } catch (e) {
+        return next(new AuthorizationError(e));
+    }
+
+    try {
+        state = stateManager.get(token.channel_id);
+    } catch(e) {
+        return next(new RedisError(e));
+    }
+
+    if (state.useBits) {
         try {
-            token = await auth(req.headers.authorization);
+            await auth(req.body.transaction.transactionReceipt);
         } catch (e) {
             return next(new AuthorizationError(e));
         }
     }
 
-    let userId = token.user_id;
-    if (req.body.userId && token.user_id === token.channel_id) {
-        userId = req.body.userId
-    }
-
     try {
         notify(token.channel_id, {
             action: 'JOIN',
-            name: userId
+            name: token.user_id
         });
     } catch(e) {
         return next(new ApiError(e));
     }
 
     try {
-        state = stateManager.get(token.channel_id);
+        if (!token.user_id) throw new Error('Player has not shared ID');
 
-        if (state.useBits) throw new Error('Require bits payment');
-        if (!userId) throw new Error('Player has not shared ID');
-
-        state.participants[userId] = {score: 0, answer: null, answerTimestamp: 0};
+        state.participants[token.user_id] = {score: 0, answer: null, answerTimestamp: 0};
     } catch(e) {
         return next(new StateError(e));
     }

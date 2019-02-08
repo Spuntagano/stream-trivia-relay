@@ -1,6 +1,6 @@
 FROM node:8
 
-WORKDIR /www/stream-requests-relay
+WORKDIR /www/stream-trivia-relay
 COPY . .
 RUN npm install && npm run build
 
