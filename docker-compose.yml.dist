@@ -17,7 +17,7 @@ services:
       ORIGIN: https://localhost.rig.twitch.tv:8080
       WS_ORIGIN: http://localhost:3004
       SECRET_KEY:
-      TWITCH_API_BASE_URL: https://api.twitch.tv
+      TWITCH_API_BASE_URL: https://api.twitch.tv/helix
       NODE_ENV: production
       REDIS_HOST: redis
       REDIS_PORT: 6379

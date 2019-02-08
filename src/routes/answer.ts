@@ -19,18 +19,12 @@ router.post('/', async (req, res, next) => {
     }
 
     try {
-        notify(token.channel_id, {
-            action: 'ANSWER',
-            answer: req.body.answer,
-            name: token.user_id
-        });
+        state = stateManager.get(token.channel_id);
     } catch(e) {
-        return next(new ApiError(e));
+        return next(new RedisError(e));
     }
 
     try {
-        state = stateManager.get(token.channel_id);
-
         if (state.gameState !== 'questions') throw new Error('Invalid game state');
         if (!state.participants[token.user_id]) throw new Error('User not in participant list');
         if (state.participants[token.user_id].answer !== null) throw new Error('User has already answered');
@@ -39,6 +33,16 @@ router.post('/', async (req, res, next) => {
         state.participants[token.user_id].answerTimestamp = new Date().getTime();
     } catch(e) {
         return next(new StateError(e));
+    }
+
+    try {
+        notify(token.channel_id, {
+            action: 'ANSWER',
+            answer: req.body.answer,
+            name: token.user_id
+        });
+    } catch(e) {
+        return next(new ApiError(e));
     }
 
     try{

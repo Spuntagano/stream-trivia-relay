@@ -18,8 +18,8 @@ async function answer(i, ans) {
   });
 
   var options = {
-    hostname: 'docker.dev',
-    port: 3001,
+    hostname: 'trivia.stream-requests.com',
+    port: 8080,
     path: '/answer',
     method: 'POST',
     headers: {

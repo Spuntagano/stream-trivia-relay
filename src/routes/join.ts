@@ -33,20 +33,20 @@ router.post('/', async (req, res, next) => {
     }
 
     try {
+        if (!token.user_id) throw new Error('Player has not shared ID');
+
+        state.participants[token.user_id] = {score: 0, answer: null, answerTimestamp: 0};
+    } catch(e) {
+        return next(new StateError(e));
+    }
+
+    try {
         notify(token.channel_id, {
             action: 'JOIN',
             name: token.user_id
         });
     } catch(e) {
         return next(new ApiError(e));
-    }
-
-    try {
-        if (!token.user_id) throw new Error('Player has not shared ID');
-
-        state.participants[token.user_id] = {score: 0, answer: null, answerTimestamp: 0};
-    } catch(e) {
-        return next(new StateError(e));
     }
 
     try {

@@ -17,8 +17,8 @@ async function join(i) {
   });
 
   var options = {
-    hostname: 'docker.dev',
-    port: 3001,
+    hostname: 'trivia.stream-requests.com',
+    port: 8080,
     path: '/join',
     method: 'POST',
     headers: {
