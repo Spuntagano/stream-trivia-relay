@@ -10,7 +10,7 @@ var StateError = require('../errors/StateError');
 var router = express.Router();
 
 router.post('/', async (req, res, next) => {
-    let token: any = {}, state;
+    let token: any = {}, state, transaction;
 
     try {
         token = await auth(req.headers.authorization);
@@ -26,7 +26,7 @@ router.post('/', async (req, res, next) => {
 
     if (state.useBits) {
         try {
-            await auth(req.body.transaction.transactionReceipt);
+            transaction = await auth(req.body.transaction.transactionReceipt);
         } catch (e) {
             return next(new AuthorizationError(e));
         }
@@ -34,6 +34,8 @@ router.post('/', async (req, res, next) => {
 
     try {
         if (!token.user_id) throw new Error('Player has not shared ID');
+        if (state.useBits && token.user_id !== transaction.data.userId) throw new Error('Transaction user invalid');
+        if (state.useBits && transaction.data.product.cost.amount != state.bitsAmount) throw new Error('Invalid bits amount');
 
         state.participants[token.user_id] = {score: 0, answer: null, answerTimestamp: 0};
     } catch(e) {
